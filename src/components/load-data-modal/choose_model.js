@@ -1,10 +1,13 @@
 import {LoadDataModalFactory, withState, ModalTabsFactory} from 'kepler.gl/components';
 import styled from 'styled-components';
-import { getLatestData, getRedshiftDataMonthly, getRedshiftDataFireSeason } from '../../actions'
+import { getLatestData, getRedshiftDataMonthly, getRedshiftDataFireSeason, selectedData } from '../../actions'
 import { useDispatch } from 'react-redux' //delete this when do action the right way
+import React, { useEffect, useState } from "react";
+
+
 
 function ImageBlock({sample, onClick}){
-  console.log('in image block', sample, {sample})
+  // console.log('in image block', sample, {sample})
   return(
     <StyledSampleMap id={sample.id} className="sample-map-gallery__item">
       <div className="sample-map">
@@ -24,8 +27,20 @@ function ImageBlock({sample, onClick}){
 }
 
 const AllBlocks = ({modelInfoArray}) =>{
-  console.log('in all blocks', modelInfoArray)
+  const [model, setModel] = useState()
+  // console.log('in all blocks', modelInfoArray)
   const dispatch = useDispatch()
+  useEffect(() => {
+    // console.log('selectedmodel', model)
+    localStorage.setItem('model' ,model)
+    dispatch(getRedshiftDataFireSeason(model))
+    dispatch(selectedData({model}))
+  },[model])
+  // async function onClickAction(model){
+  //   console.log('clicked model selecected', model)
+  //   await dispatch(getRedshiftDataFireSeason(model))
+  //   await dispatch(selectedData({model}))
+  // }
   return (
     <div>
       {
@@ -35,7 +50,7 @@ const AllBlocks = ({modelInfoArray}) =>{
               <ImageBlock 
                 sample = {sample} 
                 key = {i} 
-                onClick={() => dispatch(getRedshiftDataFireSeason(sample.model))}
+                onClick={() => setModel(sample.model)}
               />
             )}
           </StyledSampleGallery>   
@@ -63,7 +78,8 @@ const modelInfoArray = [
     // imageUrl:'https://www.hakaimagazine.com/wp-content/uploads/aabr_thumb-1.jpg',
     imageUrl:'https://s3.amazonaws.com/uber-static/kepler.gl/sample/nyctrips.png',
     label: 'fuel model Y',
-    message: 'this will load ERC for fuel model whyyyyy?',
+    // message: 'this will load ERC for fuel model whyyyyy?',
+    message: 'this will load ERC for fuel model Y',
     id: 1,
     model: 'Y'
   },
@@ -71,7 +87,8 @@ const modelInfoArray = [
     // imageUrl:'https://cms.qz.com/wp-content/uploads/2019/08/star-turtle-e1565615666276.jpg?quality=75&strip=all&w=1200&h=900&crop=1',
     imageUrl:'https://s3.amazonaws.com/uber-static/kepler.gl/sample/ukcommute.png',
     label: 'fuel model X',
-    message: 'this will load ERC for fuel model Ex!!!',
+    // message: 'this will load ERC for fuel model Ex!!!',
+    message: 'this will load ERC for fuel model X',
     id:2,
     model: 'X'
   },
@@ -79,7 +96,7 @@ const modelInfoArray = [
     // imageUrl:'https://lh3.googleusercontent.com/WEVaxizETKCHMPxtHT1nQLzclTpvUU_Ape7n8UeBOFulvIxMHSrb7wLQNVmRT8RVipUgqcjLGlAW3gaDQmyj=s600-c',
     imageUrl:'https://s3.amazonaws.com/uber-static/kepler.gl/sample/movement-pittsburgh.png',
     label: 'fuel model W',
-    message: 'this will load ERC for fuel model dubya!!!',
+    message: 'this will load ERC for fuel model W',
     id:2,
     model: 'W'
   },
@@ -87,7 +104,7 @@ const modelInfoArray = [
     // imageUrl:'https://www.gannett-cdn.com/media/2019/05/20/USATODAY/usatsports/Turtle-Marriott-PV.jpg?width=2560',
     imageUrl:'https://s3.amazonaws.com/uber-static/kepler.gl/sample/sftrees.png',
     label: 'fuel model V',
-    message: 'this will load ERC for fuel model Vee!!!',
+    message: 'this will load ERC for fuel model V',
     id:2,
     model: 'V'
   },
@@ -95,7 +112,7 @@ const modelInfoArray = [
     // imageUrl:'https://www.gannett-cdn.com/media/2019/05/20/USATODAY/usatsports/Turtle-Marriott-PV.jpg?width=2560',
     imageUrl:'https://s3.amazonaws.com/uber-static/kepler.gl/sample/sfcontour.png',
     label: 'fuel model Z',
-    message: 'this will load ERC for fuel model Zee!!!',
+    message: 'this will load ERC for fuel model Z',
     id:2,
     model: 'Z'
   }
@@ -150,7 +167,7 @@ const StyledSampleMap = styled.div`
     img {
       max-width: 100%;
       max-height: 100%;
-      width:150px;
+      width:1590px;
       height:125px
     }
     :hover {

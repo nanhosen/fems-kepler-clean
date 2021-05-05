@@ -1,19 +1,29 @@
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux'
+import { createBrowserHistory } from 'history'
+// import { connectRouter } from 'connected-react-router'
+import { connectRouter } from 'connected-react-router'
 import customizedKeplerGlReducer from './reducers/customKeplerReducer'
 import { enhanceReduxMiddleware } from 'kepler.gl/middleware'
 import thunk from 'redux-thunk'
 import latestDataReducer from './reducers/getLatestDataReducer'
 import redshiftDataReducer from './reducers/getRedshiftDataReducer'
+import selectedDataReducer from './reducers/selectedDataReducer'
 
 import { appReducer } from './reducers/'
 
 const initialState = {}
 
-const reducers = combineReducers({
+export const history = createBrowserHistory()
+
+// const reducers = combineReducers({
+const reducers = (history) => combineReducers({
+
+	router: connectRouter(history),
 	keplerGl: customizedKeplerGlReducer,
 	app: appReducer,
 	latestData: latestDataReducer,
-	redshiftData: redshiftDataReducer
+	redshiftData: redshiftDataReducer,
+	selectedData: selectedDataReducer
 })
 
 let middlewares = [ thunk ]
@@ -22,7 +32,8 @@ const middlewareEnhancer = enhanceReduxMiddleware(middlewares)
 const enhancers = [applyMiddleware(...middlewareEnhancer)]
 
 export default createStore(
-	reducers,
+	// reducers,
+	reducers(history),
 	initialState,
 	compose(...enhancers)
 )

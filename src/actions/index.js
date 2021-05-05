@@ -11,7 +11,44 @@ const { REACT_APP_ACCESSKEYID, REACT_APP_SECRETACCESSKEY } = process.env
  
 // redshift-cluster-1.crowqc8szjr0.us-east-2.redshift.amazonaws.com:5439/nfdrs
 
+export function selectedData(selection){
+	return async function(dispatch){
+		try{
+			// console.log('i am going to get redshift data someday')
+			// const data = await requestRedshift('onemonth_erc_percentiles')
+	
+			dispatch({
+        type: "SELECTION_CHANGE",
+        data: {...selection}
+      })
+		}
+		catch(e){
+			console.log('selected data error', e)
+		}
 
+	}
+}
+
+const fetchStnHistory = async(stnId) => {
+			const date1 = '2018-01-01'
+	    const date2 = '2021-04-18'
+			const fireSeasonSql = `SELECT fire_season_rank_percentiles.wims_id,  to_timestamp(fire_season_rank_percentiles.nfdr_dt, 'YYYY/MM/DD HH24:MI:SS') as date, fire_season_rank_percentiles.nfdr_type,  fire_season_rank_percentiles.msgc,   fire_season_rank_percentiles.ec,  fire_season_rank_percentiles.percentile_rank, fire_season_rank_percentiles.percentile_rank * 100 as scaled_rank, stn_metadata.latitude as latitude, stn_metadata.longitude as longitude, stn_metadata.sta_nm as sta_nm FROM fire_season_rank_percentiles INNER JOIN stn_metadata on fire_season_rank_percentiles.wims_id = stn_metadata.wims_id where nfdr_dt between '${date1}' and '${date2}' and fire_season_rank_percentiles.wims_id = ${stnId} order by fire_season_rank_percentiles.nfdr_dt`
+			const avgDataSql = `select doy, ec from public.avg_nfdrs where wims_id = ${stnId} AND nfdr_type = 'N' AND msgc LIKE '16Y%' order by doy asc`
+			const maxDataSql = `select doy, ec from public.max_nfdrs where wims_id = ${stnId} AND nfdr_type = 'N' AND msgc LIKE '16Y%' order by doy asc`
+			const minDataSql = `select doy, ec from public.min_nfdrs where wims_id = ${stnId} AND nfdr_type = 'N' AND msgc LIKE '16Y%' order by doy asc`
+			const dateRangeSql = `select min(allwims.nfdr_dt), max(allwims.nfdr_dt) from public.allwims where sta_id = ${stnId} AND nfdr_type = 'N' AND msgc LIKE '16Y%' `
+			
+			const redshiftReturnFireSeason = await requestAndReturnRedshift(fireSeasonSql)
+			const stnAvg = await requestAndReturnRedshift(avgDataSql)
+			const stnMax = await requestAndReturnRedshift(maxDataSql)
+			const stnMin = await requestAndReturnRedshift(minDataSql)
+			const stnDateRange = await requestAndReturnRedshift(dateRangeSql)
+			// console.log('stnMax', stnMax)
+			// setStnFireSeasonHistoryData({data: redshiftReturnFireSeason.data, fieldOrder: redshiftReturnFireSeason.fieldOrder})
+			// setStnClimoData({ stnAvg, stnMax, stnMin, stnDateRange })
+			// console.log('data', data, 'fieldOrder', fieldOrder)
+			return {data: redshiftReturnFireSeason.data, fieldOrder: redshiftReturnFireSeason.fieldOrder, stnAvg, stnMax, stnMin, stnDateRange}
+		}
 const requestRedshift = async(dbName, model) =>{
 	try{
 			const date1 = '2021-01-01'
@@ -161,24 +198,30 @@ export function getRedshiftDataFireSeason(model){
 	// 	}
 
 	// }
-		const fuelModel = model ? model : 'Y'
+		const fuelModel = model ? model : null
 		return async function(dispatch){
 		try{
-			const date1 = '2021-01-01'
-	    const date2 = '2021-04-25'
-			console.log('i am going to get redshift data someday')
-			// const data = await requestRedshift('fire_season_rank_percentiles')
-			// const fireSeasonMySql  = `SELECT fire_season_rank_percentiles.wims_id, to_timestamp(fire_season_rank_percentiles.nfdr_dt, 'YYYY/MM/DD HH24:MI:SS') as date, fire_season_rank_percentiles.nfdr_type,  fire_season_rank_percentiles.msgc,   fire_season_rank_percentiles.ec,  fire_season_rank_percentiles.percentile_rank, fire_season_rank_percentiles.percentile_rank * 100 as scaled_rank, stn_metadata.latitude as latitude, stn_metadata.longitude as longitude, stn_metadata.sta_nm as sta_nm FROM fire_season_rank_percentiles INNER JOIN stn_metadata on fire_season_rank_percentiles.wims_id = stn_metadata.wims_id where nfdr_dt between '${date1}' and '${date2}'`
-			const fireSeasonMySql  = `SELECT fire_season_rank_percentiles_allmodels.wims_id, to_timestamp(fire_season_rank_percentiles_allmodels.nfdr_dt, 'YYYY/MM/DD HH24:MI:SS') as date, fire_season_rank_percentiles_allmodels.nfdr_type,  fire_season_rank_percentiles_allmodels.msgc,   fire_season_rank_percentiles_allmodels.ec,  fire_season_rank_percentiles_allmodels.percentile_rank, fire_season_rank_percentiles_allmodels.percentile_rank * 100 as scaled_rank, stn_metadata.latitude as latitude, stn_metadata.longitude as longitude, stn_metadata.sta_nm as sta_nm FROM fire_season_rank_percentiles_allmodels INNER JOIN stn_metadata on fire_season_rank_percentiles_allmodels.wims_id = stn_metadata.wims_id where nfdr_dt between '${date1}' and '${date2}' and msgc like '16${fuelModel}%'`
-			console.log('this is the fire season sql request', fireSeasonMySql)
-			const fireSeasonData = await requestAndReturnRedshift(fireSeasonMySql,'all stn fire season')
-			console.log('fireSeasonData', fireSeasonData)
-			const data = formatRedshiftData(fireSeasonData)
-	
-			dispatch({
-        type: "GET_REDSHIFT_DATA_FIRE_SEASON",
-        data: data
-      })
+			if(fuelModel){
+				const date1 = '2021-01-01'
+		    const date2 = '2021-04-25'
+				console.log('i am going to get redshift data someday')
+				// const data = await requestRedshift('fire_season_rank_percentiles')
+				// const fireSeasonMySql  = `SELECT fire_season_rank_percentiles.wims_id, to_timestamp(fire_season_rank_percentiles.nfdr_dt, 'YYYY/MM/DD HH24:MI:SS') as date, fire_season_rank_percentiles.nfdr_type,  fire_season_rank_percentiles.msgc,   fire_season_rank_percentiles.ec,  fire_season_rank_percentiles.percentile_rank, fire_season_rank_percentiles.percentile_rank * 100 as scaled_rank, stn_metadata.latitude as latitude, stn_metadata.longitude as longitude, stn_metadata.sta_nm as sta_nm FROM fire_season_rank_percentiles INNER JOIN stn_metadata on fire_season_rank_percentiles.wims_id = stn_metadata.wims_id where nfdr_dt between '${date1}' and '${date2}'`
+				const fireSeasonMySql  = `SELECT fire_season_rank_percentiles_allmodels.wims_id, to_timestamp(fire_season_rank_percentiles_allmodels.nfdr_dt, 'YYYY/MM/DD HH24:MI:SS') as date, fire_season_rank_percentiles_allmodels.nfdr_type,  fire_season_rank_percentiles_allmodels.msgc,   fire_season_rank_percentiles_allmodels.ec,  fire_season_rank_percentiles_allmodels.percentile_rank, fire_season_rank_percentiles_allmodels.percentile_rank * 100 as scaled_rank, stn_metadata.latitude as latitude, stn_metadata.longitude as longitude, stn_metadata.sta_nm as sta_nm FROM fire_season_rank_percentiles_allmodels INNER JOIN stn_metadata on fire_season_rank_percentiles_allmodels.wims_id = stn_metadata.wims_id where nfdr_dt between '${date1}' and '${date2}' and msgc like '16${fuelModel}%'`
+				console.log('this is the fire season sql request', fireSeasonMySql)
+				const fireSeasonData = await requestAndReturnRedshift(fireSeasonMySql,'all stn fire season')
+				console.log('fireSeasonData', fireSeasonData)
+				const data = formatRedshiftData(fireSeasonData)
+		
+				dispatch({
+	        type: "GET_REDSHIFT_DATA_FIRE_SEASON",
+	        data: data
+	      })
+			}
+			else{
+				console.log('no fuel model selected')
+			}
+			
 		}
 		catch(e){
 			console.log('get redshift data error', e)

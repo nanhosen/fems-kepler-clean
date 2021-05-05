@@ -35,16 +35,19 @@ const KeplerGl = injectComponents([
 	  // [LayerHoverInfoFactory, myCustomInfoFactory]
 	]);
 export const KeplerMap = ({ width, height }) => {
-	console.log('width of kepler', width)
+	// console.log('width of kepler', width)
 	const dataState = useSelector ( state => state)
 	const redshiftData = useSelector ( state => state.redshiftData)
 	useEffect(() => {
 		if(dataState.keplerGl && dataState.keplerGl['kepler-map'] && dataState.keplerGl['kepler-map'].visState.layers){
-			console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!', dataState.keplerGl['kepler-map'].visState, dataState.keplerGl['kepler-map'].visState.layers)
-			dataState.keplerGl['kepler-map'].visState.layers.map(curr => console.log('curr ha', curr.config.isVisible,curr.config.dataId, curr))
+			// console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!', dataState.keplerGl['kepler-map'].visState, dataState.keplerGl['kepler-map'].visState.layers)
+			// dataState.keplerGl['kepler-map'].visState.layers.map(curr => console.log('curr ha', curr.config.isVisible,curr.config.dataId, curr))
 		}
-		console.log('kepler gl state', dataState.keplerGl)
+		// console.log('a state changed here is the new state', dataState)
+		// console.log('kepler gl state', dataState.keplerGl)
 	}, [dataState])
+
+
 	const dispatch = useDispatch()
   // useEffect(() => {
   //   // console.log(' state changed', dataState)
@@ -62,7 +65,7 @@ export const KeplerMap = ({ width, height }) => {
   //   dispatch(getRedshiftDataFireSeason())
   // },[])
   useEffect(()=>{
-		console.log('redshiftData state changed fire season', dataState)
+		// console.log('redshiftData state changed fire season', dataState)
 		if(redshiftData && redshiftData.fire_season){
 			dispatch(addDataToMap({
 				datasets: {

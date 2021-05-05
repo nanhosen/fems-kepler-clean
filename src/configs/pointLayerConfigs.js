@@ -1603,7 +1603,7 @@ export const singleFireSeason =
 		    type: 'point',
 		    config: {
 		      dataId: 'historical_fire_season',
-		      label: 'Fire Season Ugh',
+		      label: 'Fire Season Percentile Climatology',
 		      color: [18, 147, 154],
 		      colorField:{
 		      	name: "scaled_rank",

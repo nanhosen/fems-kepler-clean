@@ -8,7 +8,7 @@ const CustomLegendFactory = () => withState(
   [visStateLens],
 
   // mapStateToProps
-  state => (console.log('state', state)),
+  // state => (console.log('state', state)),
 
   // actions
   // {addTodo}

@@ -5,14 +5,14 @@ console.log('IconRoundSmall', IconRoundSmall)
 // import {addDataToMap, inputMapStyle, wrapTo } from 'kepler.gl/actions';
 
 export default function CustomLegend({visState}){ 
-	console.log('visState', visState)
+	// console.log('visState', visState)
 	// console.log('visState', visState.filters[0].value[0])
 	const dateObj = {}
 	if(visState.filters.length > 0 && visState.filters && visState.filters[0].value){
-		console.log('there are filters', visState.filters[0].value)
+		// console.log('there are filters', visState.filters[0].value)
 		const date1 = visState.filters[0].value[0]
 		const date2 = visState.filters[0].value[1]
-		console.log('visState', new Date(date1).toUTCString(), new Date(date2).toUTCString())
+		// console.log('visState', new Date(date1).toUTCString(), new Date(date2).toUTCString())
 		dateObj.date1 = new Date(date1).toUTCString()
 		dateObj.date2 = new Date(date2).toUTCString()
 	}
